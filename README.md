@@ -1,7 +1,9 @@
 
-# Web Scraping Script with RAG and Chatbot Setup
+# Basic Chatbot 
 
 A basic demonstration of a chatbot that integrates web scraping, Retrieval-Augmented Generation (RAG), Email Send and Internet Search using `beautifulsoup4`, `DuckDuckGo Search`, `Gemini`, `llama-index`, `SendGrid` and `streamlit`. 
+
+![Demo](./assets/demo.gif)
 
 How to run the project
 ---
