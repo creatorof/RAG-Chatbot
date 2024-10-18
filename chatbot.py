@@ -1,42 +1,63 @@
-import argparse
+import streamlit as st
 from dotenv import load_dotenv
 import os
 
-from llama_index.core import get_response_synthesizer
-from llama_index.core import Settings
-from llama_index.embeddings.gemini import GeminiEmbedding
-from llama_index.llms.gemini import Gemini
 
-from rag import initialize_vector_store, load_index_from_vector_store, configure_retriever, query_with_fallback
+from rag import initialize_vector_store, load_index_from_vector_store, configure_retriever, chatbot_agent, create_index_from_documents, load_data
 
-def main():
+def initialize_app():
     load_dotenv(dotenv_path='dev.env')
-    google_api_key = os.getenv('GOOGLE_API_KEY')
-    if google_api_key:
-        os.environ["GOOGLE_API_KEY"] = google_api_key
-    else:
-        raise EnvironmentError("GOOGLE_API_KEY not found in dev.env file")
-
-    Settings.embed_model = GeminiEmbedding()
-    Settings.llm = Gemini()
-
+    st.sidebar.write("Environment variables loaded.")
     data_dir = os.getenv('DATA_DIR', './saved_html_pages')
     chroma_db_dir = os.getenv('CHROMA_DB', './chroma_db')
+    if not chroma_db_dir:
+        st.sidebar.warning("Chroma DB Directory not detected.")
 
-    parser = argparse.ArgumentParser(description="Query a document or fallback to web search.")
-    parser.add_argument("query", type=str, help="The query to execute.")
-    args = parser.parse_args()
-
+    st.sidebar.write("DB Directory detected.")
     vector_store, storage_context = initialize_vector_store("saved_pages", chroma_db_dir)
-    index = load_index_from_vector_store(vector_store, storage_context)
+    st.sidebar.write("Store Initialized")
+    docs = load_data(data_dir)
+    st.sidebar.write("Data Loaded")
+    index = create_index_from_documents(vector_store, storage_context, docs)
+    st.sidebar.write("Index created from document")
+    return chroma_db_dir
 
-    retriever = configure_retriever(index)
 
-    response_synthesizer = get_response_synthesizer()
-    response = query_with_fallback(args.query, retriever, response_synthesizer)
+def chatbot_app():
+    st.title("Chatbot")
 
-    print(response)
+    if "setup_done" not in st.session_state:
+        st.sidebar.write("Running initial setup...")
+        chroma_db_dir = initialize_app()
+        st.session_state.setup_done = True
+        st.session_state.chroma_db_dir = chroma_db_dir
+        st.session_state.chat_agent = chatbot_agent(chroma_db_dir)
+        st.session_state.chat_history = []  
+    st.write("### Chat")
+    user_query = st.text_input("You:", key="user_input", placeholder="Enter your message...")
+
+    if st.button("Send", key="send_button"):
+        if user_query:
+            st.session_state.chat_history.append({"role": "user", "message": user_query})
+
+            with st.spinner("Generating response..."):
+                try:
+                    response = st.session_state.chat_agent.chat(user_query)
+
+                    st.session_state.chat_history.append({"role": "bot", "message": response})
+                except Exception as e:
+                    st.error(f"Error: {e}")
+        else:
+            st.warning("Please enter a query.")
+
+    for chat in st.session_state.chat_history:
+        if chat["role"] == "user":
+            st.write(f"**You:** {chat['message']}")
+        else:
+            st.write(f"**Bot:** {chat['message']}")
+
+    st.write(" " * 10)  
 
 
 if __name__ == "__main__":
-    main()
+    chatbot_app()

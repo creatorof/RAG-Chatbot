@@ -9,3 +9,5 @@ llama-index-vector-stores-chroma
 llama-index-readers-web
 beautifulsoup4
 urllib3
+streamlit
+sendgrid

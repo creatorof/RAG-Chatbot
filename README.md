@@ -1,7 +1,7 @@
 
 # Web Scraping Script with RAG and Chatbot Setup
 
-A basic demonstration of complete workflow of a chatbot that integrates web scraping, Retrieval-Augmented Generation (RAG) and Internet Search using `beautifulsoup4`, `DuckDuckGo Search`, `Gemini`, `llama-index`. 
+A basic demonstration of a chatbot that integrates web scraping, Retrieval-Augmented Generation (RAG), Email Send and Internet Search using `beautifulsoup4`, `DuckDuckGo Search`, `Gemini`, `llama-index`, `SendGrid` and `streamlit`. 
 
 How to run the project
 ---
@@ -47,21 +47,11 @@ How to run the project
 
 ---
 
-## Step 4: Set Up Retrieval-Augmented Generation (RAG)
+## Step 4: Run the Chatbot
 
-1. Set up the RAG using  following command:
-
-   ```bash
-   python setup_rag.py
-   ```
-   
----
-
-## Step 5: Run the Chatbot
-
-1. Query the chatbot using following command:
+1. Run the chatbot using following command:
 
    ```bash
-   python chatbot.py query
+   streamlit run chatbot.py
    ```
 ---
