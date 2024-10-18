@@ -1,0 +1,11 @@
+llama-index
+google-generativeai
+llama-index-llms-gemini
+python-dotenv
+llama-index-embeddings-gemini
+chromadb
+duckduckgo-search
+llama-index-vector-stores-chroma
+llama-index-readers-web
+beautifulsoup4
+urllib3
